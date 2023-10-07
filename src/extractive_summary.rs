@@ -19,7 +19,6 @@ pub fn calc_ranks(similarity_matrix: &Array2<f64>) -> Vec<f64> {
             break;
         }
     }
-    println!("{:?}", result);
     result.into_raw_vec()
 }
 
