@@ -1,4 +1,3 @@
-
 use clap::{arg, command, Parser};
 use config::{Config, ConfigError, Environment, Source};
 use serde_derive::Deserialize;
@@ -8,6 +7,12 @@ use url::Url;
 pub struct AppConfig {
     pub gpt: ChatGptConfig,
     pub url: Url,
+    #[serde(default = "default_sentence_count")]
+    pub extract_sentences: usize,
+}
+
+fn default_sentence_count() -> usize {
+    30
 }
 
 #[derive(Debug, Deserialize)]
@@ -23,6 +28,9 @@ pub struct Args {
     /// Web page to summarize
     #[arg(short, long)]
     url: Url,
+    /// Amount of sentences to extract from source text (important sentences are prioritized)
+    #[arg(short, long)]
+    extract_sentences: Option<usize>,
 }
 
 impl Source for Args {

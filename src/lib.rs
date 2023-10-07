@@ -56,7 +56,11 @@ async fn summarize_gpt(
 }
 
 pub async fn run(config: AppConfig) -> Result<(), AppError> {
-    let AppConfig { gpt, url } = config;
+    let AppConfig {
+        gpt,
+        url,
+        extract_sentences,
+    } = config;
 
     let html = fetch_page(url).await.map_err(|e| {
         error!("Failed to retrieve page HTML: {:?}", e);
@@ -88,11 +92,9 @@ pub async fn run(config: AppConfig) -> Result<(), AppError> {
     let mut ranks = calc_ranks(&matrix).into_iter().enumerate().collect_vec();
     ranks.sort_by(|(_, a), (_, b)| b.partial_cmp(a).unwrap());
 
-    let sentence_count = 50;
-
     let summary = ranks
         .into_iter()
-        .take(sentence_count)
+        .take(extract_sentences)
         .map(|(i, _)| sentences[i])
         .join(" ");
 
@@ -103,20 +105,11 @@ pub async fn run(config: AppConfig) -> Result<(), AppError> {
 
     let mut output = vec![];
     while let Some(chunk) = stream.next().await {
-        match chunk {
-            ResponseChunk::Content {
-                delta,
-                response_index,
-            } => {
-                print!("{delta}");
-                stdout().lock().flush().unwrap();
-                output.push(ResponseChunk::Content {
-                    delta,
-                    response_index,
-                });
-            }
-            other => output.push(other),
+        if let ResponseChunk::Content { delta, .. } = &chunk {
+            print!("{delta}");
+            stdout().lock().flush().unwrap();
         }
+        output.push(chunk);
     }
 
     Ok(())
@@ -130,7 +123,7 @@ fn scrap_text(e: ElementRef<'_>) -> String {
             .flat_map(ElementRef::wrap)
             .map(|e| scrap_text(e))
             .join(" ");
-        if children_text.len() > 0 {
+        if !children_text.is_empty() {
             return children_text;
         }
     }
