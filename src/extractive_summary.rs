@@ -6,20 +6,20 @@ pub fn calc_ranks(similarity_matrix: &Array2<f64>) -> Vec<f64> {
     let sentence_count = similarity_matrix.shape()[1];
     let init_w = 1.0 / sentence_count as f64;
     let mut result = Array1::from(vec![init_w; sentence_count]);
-    let mut prev_result = result.clone();
 
     let damping_factor = 0.85;
     let initial_m =
         damping_factor * similarity_matrix + (1.0 - damping_factor) / sentence_count as f64;
     let threshold = 0.001;
     loop {
-        result = initial_m.dot(&result);
+        let prev_result = result;
+        result = initial_m.dot(&prev_result);
         let delta = &result - &prev_result;
         if delta.iter().all(|d| d <= &threshold) {
             break;
         }
-        prev_result = result.clone();
     }
+    println!("{:?}", result);
     result.into_raw_vec()
 }
 
