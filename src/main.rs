@@ -4,11 +4,11 @@ use summarize::run;
 
 #[tokio::main]
 async fn main() -> Result<(), summarize::error::AppError> {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
 
     let subscriber = tracing_subscriber::FmtSubscriber::default();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
     let args = Args::parse();
-    run(AppConfig::new(args)).await
+    run(AppConfig::new(args).unwrap()).await
 }

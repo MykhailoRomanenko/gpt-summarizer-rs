@@ -16,7 +16,7 @@ name = "summarize"
 chatgpt_rs = { version = "1.2.3", features = ["streams"] }
 clap = { version = "4.4.6", features = ["derive"] }
 config = "0.13.3"
-dotenv = "0.15.0"
+dotenvy = "0.15.7"
 futures-util = "0.3.28"
 itertools = "0.11.0"
 ndarray = "0.15.6"

@@ -46,13 +46,12 @@ impl Source for Args {
 }
 
 impl AppConfig {
-    pub fn new(args: Args) -> Self {
+    pub fn new(args: Args) -> Result<Self, ConfigError> {
         let config = Config::builder()
             .add_source(Environment::with_prefix("CONF").separator("__"))
             .add_source(args)
-            .build()
-            .unwrap();
+            .build()?;
 
-        config.try_deserialize().unwrap()
+        config.try_deserialize()
     }
 }
